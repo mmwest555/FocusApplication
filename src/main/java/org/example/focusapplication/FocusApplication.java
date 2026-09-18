@@ -70,6 +70,14 @@ public class FocusApplication extends Application {
         return currentUsername;
     }
 
+    void logout() {
+        currentUsername = null;
+        tasks.clear();
+        if (primaryStage != null) {
+            showLoginScene();
+        }
+    }
+
     String consumeLoginStatusMessage() {
         String message = loginStatusMessage;
         loginStatusMessage = null;
@@ -107,13 +115,10 @@ public class FocusApplication extends Application {
     private ObservableList<String> buildTimeOptions() {
         ObservableList<String> options = FXCollections.observableArrayList();
         LocalTime time = LocalTime.MIDNIGHT;
-        while (!time.equals(LocalTime.MIDNIGHT.minusMinutes(30))) {
+        do {
             options.add(formatTime(time));
             time = time.plusMinutes(30);
-            if (time.equals(LocalTime.MIDNIGHT)) {
-                break;
-            }
-        }
+        } while (!time.equals(LocalTime.MIDNIGHT));
         return options;
     }
 
@@ -442,7 +447,7 @@ public class FocusApplication extends Application {
         VBox.setVgrow(taskListView, Priority.ALWAYS);
 
         Button logoutButton = new Button("Log Out");
-        logoutButton.setOnAction(event -> showLoginScene());
+        logoutButton.setOnAction(event -> logout());
         logoutButton.setStyle("-fx-background-color: #334155; -fx-text-fill: white; -fx-font-weight: bold;");
 
         content.getChildren().addAll(title, subtitle, sectionLabel, form, taskListView, logoutButton);

@@ -1,8 +1,10 @@
 package org.example.focusapplication;
 
+import javafx.collections.ObservableList;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,5 +72,32 @@ class FocusApplicationStateTest {
         application.deleteTask(task);
 
         assertEquals(0, application.getTasks().size());
+    }
+
+    @Test
+    void logoutClearsCurrentUserAndTasks() throws Exception {
+        FocusApplication application = new FocusApplication();
+        Field field = FocusApplication.class.getDeclaredField("currentUsername");
+        field.setAccessible(true);
+        field.set(application, "alice");
+        application.saveTask(null, "Private task", LocalTime.of(9, 0), LocalTime.of(10, 0), "Work");
+
+        application.logout();
+
+        assertNull(application.getCurrentUsername());
+        assertEquals(0, application.getTasks().size());
+    }
+
+    @Test
+    void buildTimeOptionsIncludesElevenThirtyPm() throws Exception {
+        FocusApplication application = new FocusApplication();
+        Method method = FocusApplication.class.getDeclaredMethod("buildTimeOptions");
+        method.setAccessible(true);
+
+        @SuppressWarnings("unchecked")
+        ObservableList<String> options = (ObservableList<String>) method.invoke(application);
+
+        assertEquals(48, options.size());
+        assertEquals("11:30 pm", options.getLast());
     }
 }
